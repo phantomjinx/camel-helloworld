@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../base
+namespace: hawtio-dev
+images:
+- name: quay.io/phantomjinx/camel-helloworld
+  newName: quay.io/phantomjinx/camel-helloworld
+  newTag: 1.0.0

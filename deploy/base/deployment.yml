@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: camel-helloworld
+    version: 1.0.0
+    group: io.hawt
+  name: camel-helloworld
+spec:
+  replicas: 5
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: camel-helloworld
+      group: io.hawt
+  template:
+    metadata:
+      annotations:
+        hawt.io/protocol: http
+        hawt.io/jolokiaPath: /actuator/jolokia/
+      labels:
+        app: camel-helloworld
+        provider: jkube
+        version: 1.0.0
+        group: io.hawt
+      name: camel-helloworld
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: AB_JOLOKIA_AUTH_OPENSHIFT
+          value: "false"
+        - name: AB_JOLOKIA_PASSWORD_RANDOM
+          value: "false"
+        - name: AB_JOLOKIA_OPTS
+          value: "useSslClientAuthentication=false,protocol=https"
+        image: quay.io/phantomjinx/camel-helloworld:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/jolokia/version
+            port: 10001
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: camel-helloworld
+        ports:
+        - containerPort: 10001
+          name: jolokia
+          protocol: TCP
+        - containerPort: 10000
+          name: ndmp
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/jolokia/version
+            port: 10001
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            memory: 100Mi
+        securityContext:
+          privileged: false
