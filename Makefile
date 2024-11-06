@@ -19,7 +19,7 @@
 #
 SHELL := /bin/bash
 
-VERSION ?= 1.0.0
+VERSION ?= 1.0.1
 KUSTOMIZE_VERSION := v4.5.4
 IMAGE_NAME ?= quay.io/phantomjinx/camel-helloworld
 
